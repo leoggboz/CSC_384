@@ -81,7 +81,7 @@ class ReflexAgent(Agent):
         for i in ghost_list:
             ghost_distance.append(manhattanDistance(newPos,i))
             if manhattanDistance(newPos, i) == 0:
-                return -9999
+                return -99999
 
         food_list = newFood.asList()
         food_distance = []
@@ -148,7 +148,35 @@ class MinimaxAgent(MultiAgentSearchAgent):
             Returns the total number of agents in the game
         """
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        def minimax(gameState,depth,agent_ind):
+            if depth == self.depth or gameState.isLose() or gameState.isWin():
+                return self.evaluationFunction(gameState)
+
+            #ghost turn
+            if agent_ind < gameState.getNumAgents():
+                ghost_mvoe = gameState.getLegalActions(agent_ind)
+                min_value = []
+                for move in ghost_mvoe:
+                    min_value.append(minimax(gameState.generateSuccessor(agent_ind, move),depth , agent_ind+1))
+                return min(min_value)
+
+            #pacman turn
+            if agent_ind == gameState.getNumAgents():
+                if depth+1 == self.depth or gameState.isLose() or gameState.isWin():
+                    return self.evaluationFunction(gameState)
+                pacman_move = gameState.getLegalActions(0)
+                max_value = []
+                for move in pacman_move:
+                    max_value.append(minimax(gameState.generateSuccessor(0,move ),depth + 1,1))
+                return max(max_value)
+
+        max_move = ["",-999999]
+        for i in gameState.getLegalActions(0):
+            next_state = gameState.generateSuccessor(0,i)
+            temp_max = minimax(next_state,0,1)
+            if max_move[1] < temp_max:
+                max_move = i,temp_max
+        return max_move[0]
 
 class AlphaBetaAgent(MultiAgentSearchAgent):
     """
@@ -160,7 +188,38 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
           Returns the minimax action using self.depth and self.evaluationFunction
         """
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        ALPHA = float("-inf")
+        BETA = float("inf")
+        def minimax(gameState,depth,agent_ind, alpha, beta):
+            if depth == self.depth or gameState.isLose() or gameState.isWin():
+                return self.evaluationFunction(gameState)
+            #ghost turn
+            if agent_ind < gameState.getNumAgents():
+                ghost_mvoe = gameState.getLegalActions(agent_ind)
+                min_value = []
+                for move in ghost_mvoe:
+                    temp_value = minimax(gameState.generateSuccessor(agent_ind, move),depth , agent_ind+1)
+                    if temp_value >
+                    min_value.append()
+                return min(min_value)
+
+            #pacman turn
+            if agent_ind == gameState.getNumAgents():
+                if depth+1 == self.depth or gameState.isLose() or gameState.isWin():
+                    return self.evaluationFunction(gameState)
+                pacman_move = gameState.getLegalActions(0)
+                max_value = []
+                for move in pacman_move:
+                    max_value.append(minimax(gameState.generateSuccessor(0,move ),depth + 1,1))
+                return max(max_value)
+
+        max_move = ["",-999999]
+        for i in gameState.getLegalActions(0):
+            next_state = gameState.generateSuccessor(0,i)
+            temp_max = minimax(next_state,0,1)
+            if max_move[1] < temp_max:
+                max_move = i,temp_max
+        return max_move[0]
 
 class ExpectimaxAgent(MultiAgentSearchAgent):
     """
