@@ -188,20 +188,79 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
           Returns the minimax action using self.depth and self.evaluationFunction
         """
         "*** YOUR CODE HERE ***"
-        ALPHA = float("-inf")
-        BETA = float("inf")
+        alpha = -999999
+        beta = 999999
         def minimax(gameState,depth,agent_ind, alpha, beta):
             if depth == self.depth or gameState.isLose() or gameState.isWin():
-                return self.evaluationFunction(gameState)
+                value = self.evaluationFunction(gameState)
+                return [value,alpha,beta]
+
             #ghost turn
             if agent_ind < gameState.getNumAgents():
                 ghost_mvoe = gameState.getLegalActions(agent_ind)
                 min_value = []
                 for move in ghost_mvoe:
-                    temp_value = minimax(gameState.generateSuccessor(agent_ind, move),depth , agent_ind+1)
-                    if temp_value >
-                    min_value.append()
-                return min(min_value)
+                    temp_value = minimax(gameState.generateSuccessor(agent_ind,move),depth,agent_ind+1,alpha,beta)
+                    if beta > temp_value[0]:
+                        beta = temp_value[0]
+                    if beta <= alpha:
+                        return [beta,alpha,beta]
+                    min_value.append(temp_value)
+                return  [beta,alpha,beta]
+
+            #pacman turn
+            if agent_ind == gameState.getNumAgents():
+                if depth+1 == self.depth or gameState.isLose() or gameState.isWin():
+                    value = self.evaluationFunction(gameState)
+                    return [value,alpha,beta]
+
+                pacman_move = gameState.getLegalActions(0)
+                max_value = []
+                for move in pacman_move:
+                    temp_value = minimax(gameState.generateSuccessor(0,move),depth + 1,1,alpha,beta)
+                    if alpha < temp_value[0]:
+                        alpha = temp_value[0]
+                    if beta <= alpha:
+                        return [beta,alpha,beta]
+                    max_value.append(temp_value)
+                return  [alpha,alpha,beta]
+
+        max_move = ["",-999999]
+        for i in gameState.getLegalActions(0):
+            next_state = gameState.generateSuccessor(0,i)
+            temp_max = minimax(next_state,0,1,alpha,beta)
+            if alpha < temp_max[0]:
+                alpha = temp_max[0]
+            if beta <= alpha:
+                break
+            if max_move[1] < temp_max[0]:
+                max_move = [i,temp_max[0]]
+        return max_move[0]
+
+class ExpectimaxAgent(MultiAgentSearchAgent):
+    """
+      Your expectimax agent (question 4)
+    """
+
+    def getAction(self, gameState):
+        """
+          Returns the expectimax action using self.depth and self.evaluationFunction
+
+          All ghosts should be modeled as choosing uniformly at random from their
+          legal moves.
+        """
+        "*** YOUR CODE HERE ***"
+        def minimax(gameState,depth,agent_ind):
+            if depth == self.depth or gameState.isLose() or gameState.isWin():
+                return self.evaluationFunction(gameState)
+
+            #ghost turn
+            if agent_ind < gameState.getNumAgents():
+                ghost_mvoe = gameState.getLegalActions(agent_ind)
+                min_value = []
+                for move in ghost_mvoe:
+                    min_value.append(minimax(gameState.generateSuccessor(agent_ind, move),depth , agent_ind+1))
+                return sum(min_value)/len(min_value)
 
             #pacman turn
             if agent_ind == gameState.getNumAgents():
@@ -221,21 +280,6 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
                 max_move = i,temp_max
         return max_move[0]
 
-class ExpectimaxAgent(MultiAgentSearchAgent):
-    """
-      Your expectimax agent (question 4)
-    """
-
-    def getAction(self, gameState):
-        """
-          Returns the expectimax action using self.depth and self.evaluationFunction
-
-          All ghosts should be modeled as choosing uniformly at random from their
-          legal moves.
-        """
-        "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
-
 def betterEvaluationFunction(currentGameState):
     """
       Your extreme ghost-hunting, pellet-nabbing, food-gobbling, unstoppable
@@ -244,7 +288,17 @@ def betterEvaluationFunction(currentGameState):
       DESCRIPTION: <write something here so we know what you did>
     """
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    newPos = currentGameState.getPacmanPosition()
+    newFood = currentGameState.getFood()
+    newGhostStates = currentGameState.getGhostStates()
+    newScaredTimes = [ghostState.scaredTimer for ghostState in newGhostStates]
+
+    value = currentGameState.getScore()
+
+    
+
+
+    return value
 
 # Abbreviation
 better = betterEvaluationFunction
