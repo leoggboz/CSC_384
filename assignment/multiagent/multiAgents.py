@@ -288,15 +288,28 @@ def betterEvaluationFunction(currentGameState):
       DESCRIPTION: <write something here so we know what you did>
     """
     "*** YOUR CODE HERE ***"
-    newPos = currentGameState.getPacmanPosition()
-    newFood = currentGameState.getFood()
-    newGhostStates = currentGameState.getGhostStates()
-    newScaredTimes = [ghostState.scaredTimer for ghostState in newGhostStates]
+    pacman_pos = currentGameState.getPacmanPosition()
+    food_list = currentGameState.getFood().asList()
+    ghost_state = currentGameState.getGhostStates()
+    scared_time = [ghostState.scaredTimer for ghostState in ghost_state]
+    ghost_pos = [ghostState.getPosition() for ghostState in ghost_state]
 
     value = currentGameState.getScore()
 
-    
+    pac_ghost_distance = [manhattanDistance(pacman_pos,i) for i in ghost_pos]
+    pac_food_distance = [manhattanDistance(pacman_pos,i) for i in food_list]
 
+    if min(pac_ghost_distance) <= 1:
+        return -99
+
+    for i in range(len(food_list)):
+        value += (10.0/manhattanDistance(food_list[i],pacman_pos))*((len(food_list)-i)/len(food_list))
+
+    for i in range(len(scared_time)):
+        if scared_time[i] > 0:
+            value += 10/min(pac_food_distance)
+        else:
+            value -= 4/manhattanDistance(ghost_pos[i],pacman_pos)
 
     return value
 
