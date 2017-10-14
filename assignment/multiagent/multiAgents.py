@@ -299,6 +299,9 @@ def betterEvaluationFunction(currentGameState):
     pac_ghost_distance = [manhattanDistance(pacman_pos,i) for i in ghost_pos]
     pac_food_distance = [manhattanDistance(pacman_pos,i) for i in food_list]
 
+    pac_food_distance.sort()
+    pac_ghost_distance.sort()
+
     if min(pac_ghost_distance) <= 1:
         return -99
 
