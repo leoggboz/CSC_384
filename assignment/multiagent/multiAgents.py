@@ -310,7 +310,8 @@ def betterEvaluationFunction(currentGameState):
 
     for i in range(len(scared_time)):
         if scared_time[i] > 0:
-            value += 10/min(pac_food_distance)
+            if len(pac_food_distance) != 0:
+                value += 10/min(pac_food_distance)
         else:
             value -= 4/manhattanDistance(ghost_pos[i],pacman_pos)
 
