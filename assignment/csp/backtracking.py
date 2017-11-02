@@ -146,8 +146,10 @@ def FCCheck(cnstr, reasonVar, reasonVal):
         print "Error FCCheck called on constraint {} with {} neq 1 unassigned vars".format(cnstr.name(), cnstr.numUnassignedVars)
     var = cnstr.unAssignedVars()[0]
     for val in var.curDomain():
+        print "next var val is " + str(val)
         var.setValue(val)
         if not cnstr.check():
+            print "we just pruned "+str(val)
             var.pruneValue(val, reasonVar, reasonVal)
         var.unAssign()  #NOTE WE MUST UNDO TRIAL ASSIGNMENT
     if var.curDomainSize() == 0:
@@ -174,8 +176,39 @@ def FC(unAssignedVars, csp, allSolutions, trace):
     #you must not change the function parameters.
     #Implementing handling of the trace parameter is optional
     #but it can be useful for debugging
+    if unAssignedVars.empty():
+        if trace: print "{} Solution Found".format(csp.name())
+        soln = []
+        for v in csp.variables():
+            soln.append((v, v.getValue()))
+        return [soln]  #each call returns a list of solutions found
+    bt_search.nodesExplored += 1
+    solns = []         #so far we have no solutions recursive calls
+    nxtvar = unAssignedVars.extract()
+    if trace: print "==>Trying {}".format(nxtvar.name())
 
-    util.raiseNotDefined()
+    for val in nxtvar.domain():
+        if trace: print "==> {} = {}".format(nxtvar.name(), val)
+        nxtvar.setValue(val)
+        noDWO = True
+        for cnstr in csp.constraintsOf(nxtvar):
+            if cnstr.numUnassigned() == 1:
+                if FCCheck(cnstr,nxtvar,val) == "DWO":
+
+                    noDWO = False
+                    if trace: print "<==falsified constraint\n"
+                    break
+        if noDWO:
+            new_solns = FC(unAssignedVars, csp, allSolutions, trace)
+            if new_solns:
+                solns.extend(new_solns)
+            if len(solns) > 0 and not allSolutions:
+                break #don't bother with other values of nxtvar
+                      #as we found a soln.
+    Variable.restoreValues(nxtvar,val)
+    nxtvar.unAssign()
+    unAssignedVars.insert(nxtvar)
+    return solns
 
 def GacEnforce(constraints, csp, reasonVar, reasonVal):
     '''Establish GAC on constraints by pruning values
