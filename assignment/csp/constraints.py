@@ -120,8 +120,43 @@ class QueensTableConstraint(TableConstraint):
     #inside of this class body. You must not change
     #the existing function signatures.
     def __init__(self, name, qi, qj, i, j):
-        self._name = "Queen_" + name
-        util.raiseNotDefined()
+        self._name = "QueenCnstr_" + name
+        #my work starts here
+        scope = [qi, qj]
+        self.i = i
+        self.j = j
+        satDomain = []
+        for i in qi.curDomain():
+            for j in qj.curDomain():
+                if not (abs(i - j)<= 1):
+                    satDomain.append([i,j])
+        # print satDomain
+        TableConstraint.__init__(self,name,scope,satDomain)
+
+    def check(self):
+        qi = self.scope()[0]
+        qj = self.scope()[1]
+        if not qi.isAssigned() or not qj.isAssigned():
+            return True
+        return self.queensCheck(qi.getValue(),qj.getValue())
+
+    def queensCheck(self, vali, valj):
+        diag = abs(vali - valj) == abs(self.i - self.j)
+        return not diag and vali != valj
+    def hasSupport(self, var, val):
+        '''check if var=val has an extension to an assignment of the
+           other variable in the constraint that satisfies the constraint'''
+        #hasSupport for this constraint is easier as we only have one
+        #other variable in the constraint.
+        if var not in self.scope():
+            return True   #var=val has support on any constraint it does not participate in
+        otherVar = self.scope()[0]
+        if otherVar == var:
+            otherVar = self.scope()[1]
+        for otherVal in otherVar.curDomain():
+            if self.queensCheck(val, otherVal):
+                return True
+        return False
 
 class NeqConstraint(Constraint):
     '''Neq constraint between two variables'''
