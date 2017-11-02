@@ -146,10 +146,8 @@ def FCCheck(cnstr, reasonVar, reasonVal):
         print "Error FCCheck called on constraint {} with {} neq 1 unassigned vars".format(cnstr.name(), cnstr.numUnassignedVars)
     var = cnstr.unAssignedVars()[0]
     for val in var.curDomain():
-        print "next var val is " + str(val)
         var.setValue(val)
         if not cnstr.check():
-            print "we just pruned "+str(val)
             var.pruneValue(val, reasonVar, reasonVal)
         var.unAssign()  #NOTE WE MUST UNDO TRIAL ASSIGNMENT
     if var.curDomainSize() == 0:
@@ -194,18 +192,17 @@ def FC(unAssignedVars, csp, allSolutions, trace):
         for cnstr in csp.constraintsOf(nxtvar):
             if cnstr.numUnassigned() == 1:
                 if FCCheck(cnstr,nxtvar,val) == "DWO":
-
                     noDWO = False
                     if trace: print "<==falsified constraint\n"
                     break
         if noDWO:
-            new_solns = FC(unAssignedVars, csp, allSolutions, trace)
+            new_solns = FC(abc, csp, allSolutions, trace)
             if new_solns:
                 solns.extend(new_solns)
             if len(solns) > 0 and not allSolutions:
                 break #don't bother with other values of nxtvar
                       #as we found a soln.
-    Variable.restoreValues(nxtvar,val)
+        Variable.restoreValues(nxtvar,val)
     nxtvar.unAssign()
     unAssignedVars.insert(nxtvar)
     return solns
