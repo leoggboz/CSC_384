@@ -224,12 +224,10 @@ def GacEnforce(constraints, csp, reasonVar, reasonVal):
                 if not cnstr.hasSupport(var,val):
                     var.pruneValue(val,reasonVar, reasonVal)
                     if var.curDomainSize() == 0:
-                        print "DWO"
                         return "DWO"
                     for recheck in csp.constraintsOf(var):
                         if recheck != cnstr and not recheck in constraints:
                             constraints.append(recheck)
-    print "ok"
     return "OK"
 
 def GAC(unAssignedVars, csp, allSolutions, trace):
@@ -271,7 +269,6 @@ def GAC(unAssignedVars, csp, allSolutions, trace):
         if GacEnforce(csp.constraintsOf(nxtvar), csp, nxtvar, val) == "DWO":
             noDWO = False
             if trace: print "<==falsified constraint\n"
-            break
 
         if noDWO:
             new_solns = GAC(unAssignedVars, csp, allSolutions, trace)
