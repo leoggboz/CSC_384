@@ -274,7 +274,15 @@ class NValuesConstraint(Constraint):
         self._ub = upper_bound
 
     def check(self):
-        util.raiseNotDefined()
+        count = 0
+        for i in self._scope:
+            if i.isAssigned() and i.getValue() == self._required:
+                count += 1
+        if count >= self._lb and count <= self._ub:
+            flag = True
+        else:
+            flag = False
+        return flag
 
     def hasSupport(self, var, val):
         '''check if var=val has an extension to an assignment of the
@@ -284,4 +292,6 @@ class NValuesConstraint(Constraint):
                  a similar approach is applicable here (but of course
                  there are other ways as well)
         '''
-        util.raiseNotDefined()
+        #variable is already assigned a value
+        if var not in self.scope():
+            return True

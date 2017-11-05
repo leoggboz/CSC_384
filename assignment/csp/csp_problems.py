@@ -130,14 +130,16 @@ def sudokuCSP(initial_sudoku_board, model='neq'):
         if model == 'neq':
             constraint_list.extend(post_all_pairs(row))
         elif model == 'alldiff':
-            util.raiseNotDefined()
+            # util.raiseNotDefined()
+            constraint_list.extend(post_all_diff(row))
 
     for colj in range(len(var_array[0])):
         scope = map(lambda row: row[colj], var_array)
         if model == 'neq':
             constraint_list.extend(post_all_pairs(scope))
         elif model == 'alldiff':
-            util.raiseNotDefined()
+            # util.raiseNotDefined()
+            constraint_list.extend(post_all_diff(scope))
 
     for i in [0, 3, 6]:
         for j in [0, 3, 6]:
@@ -149,7 +151,8 @@ def sudokuCSP(initial_sudoku_board, model='neq'):
             if model == 'neq':
                 constraint_list.extend(post_all_pairs(scope))
             elif model == 'alldiff':
-                util.raiseNotDefined()
+                # util.raiseNotDefined()
+                constraint_list.extend(post_all_diff(scope))
 
     vars = [var for row in var_array for var in row]
     return CSP("Sudoku", vars, constraint_list)
@@ -162,6 +165,21 @@ def post_all_pairs(var_list):
         for j in range(i+1,len(var_list)):
             c = NeqConstraint("({},{})".format(var_list[i].name(), var_list[j].name()),[var_list[i], var_list[j]])
             constraints.append(c)
+    return constraints
+
+def post_all_diff(var_list):
+    constraints = []
+    name = "("
+    index = 0
+    for i in var_list:
+        index += 1
+        name += i.name()
+        if index == len(var_list):
+            name += ")"
+        else:
+            name += ","
+    #NOTE use tuple to get "()"
+    constraints.append(AllDiffConstraint(name, var_list))
     return constraints
 
 def solve_sudoku(initialBoard, model, algo, allsolns,
