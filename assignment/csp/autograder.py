@@ -164,7 +164,7 @@ def question_2():
             print "Fail Q2 test 2: FC failed to restore domains of variables"
 
     if not fails[1]:
-        print "Pass Q2 test 1"
+        print "Pass Q2 test 2"
     print_sep()
 
     if sum(fails) == 2:
