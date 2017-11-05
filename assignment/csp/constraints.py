@@ -292,6 +292,33 @@ class NValuesConstraint(Constraint):
                  a similar approach is applicable here (but of course
                  there are other ways as well)
         '''
-        #variable is already assigned a value
         if var not in self.scope():
             return True
+
+        if not var.inCurDomain(val):
+            return False
+
+        if var.inCurDomain(val) and val == self._required:
+            count_assigned = 1
+        else:
+            count_assigned = 0
+        count_not_assigned = 0
+
+        varsToAssign = self.scope()
+        varsToAssign.remove(var)
+
+        #start to count
+        for i in varsToAssign:
+            if i.isAssigned() and i.inCurDomain(self._required):
+                count_assigned += 1
+                if count_assigned > self._ub:
+                    return False
+            if not i.isAssigned() and i.inCurDomain(self._required):
+                count_not_assigned += 1
+        #if assigned domain does not exceed the upper_bound
+        #then the expected sum = assigned + unassigned > lb
+        if (count_assigned+count_not_assigned) >= self._lb:
+            flag = True
+        else:
+            flag = False
+        return flag
