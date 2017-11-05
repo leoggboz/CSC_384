@@ -126,37 +126,12 @@ class QueensTableConstraint(TableConstraint):
         self.i = i
         self.j = j
         satDomain = []
-        for i in qi.curDomain():
-            for j in qj.curDomain():
-                if not (abs(i - j)<= 1):
-                    satDomain.append([i,j])
-        # print satDomain
+        for first_row in qi.curDomain():
+            for second_row in qj.curDomain():
+                if not first_row == second_row and not abs(first_row - second_row) == abs(i-j):
+                    satDomain.append([first_row,second_row])
         TableConstraint.__init__(self,name,scope,satDomain)
 
-    def check(self):
-        qi = self.scope()[0]
-        qj = self.scope()[1]
-        if not qi.isAssigned() or not qj.isAssigned():
-            return True
-        return self.queensCheck(qi.getValue(),qj.getValue())
-
-    def queensCheck(self, vali, valj):
-        diag = abs(vali - valj) == abs(self.i - self.j)
-        return not diag and vali != valj
-    def hasSupport(self, var, val):
-        '''check if var=val has an extension to an assignment of the
-           other variable in the constraint that satisfies the constraint'''
-        #hasSupport for this constraint is easier as we only have one
-        #other variable in the constraint.
-        if var not in self.scope():
-            return True   #var=val has support on any constraint it does not participate in
-        otherVar = self.scope()[0]
-        if otherVar == var:
-            otherVar = self.scope()[1]
-        for otherVal in otherVar.curDomain():
-            if self.queensCheck(val, otherVal):
-                return True
-        return False
 
 class NeqConstraint(Constraint):
     '''Neq constraint between two variables'''
