@@ -255,6 +255,6 @@ class CSP:
             var.setValue(val)
 
         return errs
-    
+
     def __str__(self):
         return "CSP {}".format(self.name())
