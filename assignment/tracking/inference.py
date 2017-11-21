@@ -190,7 +190,6 @@ class ExactInference(InferenceModule):
 
         allPossible = util.Counter()
         if noisyDistance == None:
-            allPossible = util.Counter()
             allPossible[self.getJailPosition()] = 1.0
         else:
             for p in self.legalPositions:
@@ -279,7 +278,13 @@ class ExactInference(InferenceModule):
 
         """
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        allPossible = util.Counter()
+        for oldPos in self.legalPositions:
+            oldGhostState = self.setGhostPosition(gameState, oldPos)
+            newPosDist = self.getPositionDistribution(oldGhostState)
+            for newPos, belief in newPosDist.items():
+                allPossible[newPos] += belief * self.beliefs[oldPos]
+        self.beliefs = allPossible
         "*** END YOUR CODE HERE ***"
 
     def getBeliefDistribution(self):
